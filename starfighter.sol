@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.12;
 
-//import 'erc721a/contracts/ERC721A.sol';
+//Giuliano Neroni DEV
 
 interface IERC721A {
 
