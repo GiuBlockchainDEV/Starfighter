@@ -1041,8 +1041,9 @@ contract starfighter is ERC721A, Ownable, ReentrancyGuard {
     bool public whitelistMintEnabled = false;
     bool public revealed = false;
 
-    mapping(address => bool) public whitelistClaimed;
+    //mapping(address => bool) public whitelistClaimed;
     mapping (address => bool) public whitelisted;
+    mapping(address => uint) public minted;
     address[] private _whitelist;
     address[] private _excluded;
     
@@ -1051,7 +1052,7 @@ contract starfighter is ERC721A, Ownable, ReentrancyGuard {
         string memory _tokenSymbol,
         uint256 _cost,
         uint256 _maxSupply,
-        uint256 _maxMintAmountPerTx,
+        uint256 _maxMintAmountPerTx, //12
         string memory _hiddenMetadataUri) 
         ERC721A(_tokenName, _tokenSymbol) {
             setCost(_cost);
@@ -1074,10 +1075,12 @@ contract starfighter is ERC721A, Ownable, ReentrancyGuard {
 
     function mint(uint256 _mintAmount) public payable mintCompliance(_mintAmount) mintPriceCompliance(_mintAmount) {
         require(!paused, 'The contract is paused!');
-        _safeMint(_msgSender(), _mintAmount);}
+        minted[_msgSender()] = minted[_msgSender()] + _mintAmount;//CHECK
+        require(minted[_msgSender()] <= maxMintAmountPerTx, "Max quantity reached");
+            _safeMint(_msgSender(), _mintAmount);}
 
     function mintForAddress(uint256 _mintAmount, address _receiver) public mintCompliance(_mintAmount) onlyOwner {
-        //Minted by Owner without any cost
+        //Minted by Owner without any cost, doesn't count on minted quantity
         _safeMint(_receiver, _mintAmount);}
 
     function _startTokenId() internal view virtual override returns (uint256) {
@@ -1129,9 +1132,11 @@ contract starfighter is ERC721A, Ownable, ReentrancyGuard {
     function whitelistMint(uint256 _mintAmount) public payable mintCompliance(_mintAmount) mintPriceCompliance(_mintAmount) {
         // Verify whitelist requirements
         require(whitelistMintEnabled, 'The whitelist sale is not enabled!');
-        require(!whitelistClaimed[_msgSender()], 'Address already claimed!');
+        //require(!whitelistClaimed[_msgSender()], 'Address already claimed!');
         require(whitelisted[_msgSender()], "Account is not in whitelist");
-        whitelistClaimed[_msgSender()] = true;
+        minted[_msgSender()] = minted[_msgSender()] + _mintAmount;//CHECK
+        require(minted[_msgSender()] <= maxMintAmountPerTx, "Max quantity reached");
+        //whitelistClaimed[_msgSender()] = true;
         _safeMint(_msgSender(), _mintAmount);}
 
     function withdraw() public onlyOwner nonReentrant {
