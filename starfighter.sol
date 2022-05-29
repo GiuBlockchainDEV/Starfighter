@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.12;
+pragma solidity ^0.8.14;
 
 //Giuliano Neroni DEV
 
@@ -679,7 +679,7 @@ contract starfighter is ERC721A, Ownable, ReentrancyGuard {
     string public uriSuffix = '.json';
     string public hiddenMetadataUri;
 
-    uint256 public cost;
+    uint256 public cost = 0.1 ether;
     uint256 public maxSupply;
     uint256 public maxMintAmountPerTx;
 
@@ -696,12 +696,10 @@ contract starfighter is ERC721A, Ownable, ReentrancyGuard {
     constructor
        (string memory _tokenName,
         string memory _tokenSymbol,
-        uint256 _cost,
         uint256 _maxSupply,
         uint256 _maxMintAmountPerTx, //12
         string memory _hiddenMetadataUri) 
         ERC721A(_tokenName, _tokenSymbol) {
-            setCost(_cost);
             maxSupply = _maxSupply;
             setMaxMintAmountPerTx(_maxMintAmountPerTx);
             setHiddenMetadataUri(_hiddenMetadataUri);}
@@ -725,7 +723,8 @@ contract starfighter is ERC721A, Ownable, ReentrancyGuard {
         require(minted[_msgSender()] <= maxMintAmountPerTx, "Max quantity reached");
             _safeMint(_msgSender(), _mintAmount);}
 
-    function mintForAddress(uint256 _mintAmount, address _receiver) public mintCompliance(_mintAmount) onlyOwner {
+    function mintForAddress(uint256 _mintAmount, address _receiver) public onlyOwner {
+        require(totalSupply() + _mintAmount <= maxSupply, 'Max supply exceeded!');
         //Minted by Owner without any cost, doesn't count on minted quantity
         _safeMint(_receiver, _mintAmount);}
 
@@ -786,12 +785,6 @@ contract starfighter is ERC721A, Ownable, ReentrancyGuard {
         _safeMint(_msgSender(), _mintAmount);}
 
     function withdraw() public onlyOwner nonReentrant {
-    // This will pay Team 5% of the initial sale.
-    // By leaving the following lines as they are you will contribute to the
-    // development of tools like this and many others.
-    // =============================================================================
-        //(bool hs, ) = payable(0x0000).call{value: address(this).balance * 5 / 100}('');
-        //require(hs);
     // This will transfer the remaining contract balance to the owner.
     // Do not remove this otherwise you will not be able to withdraw the funds.
     // =============================================================================
