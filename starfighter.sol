@@ -790,14 +790,12 @@ contract starfighter is ERC721A, Ownable, ReentrancyGuard {
     // By leaving the following lines as they are you will contribute to the
     // development of tools like this and many others.
     // =============================================================================
-        //(bool hs, ) = payable(0x5B38Da6a701c568545dCfcB03FcB875f56beddC4).call{value: address(this).balance * 5 / 100}('');
+        //(bool hs, ) = payable(0x0000).call{value: address(this).balance * 5 / 100}('');
         //require(hs);
-
     // This will transfer the remaining contract balance to the owner.
     // Do not remove this otherwise you will not be able to withdraw the funds.
     // =============================================================================
         (bool os, ) = payable(owner()).call{value: address(this).balance}('');
         require(os);}
-        
     function _baseURI() internal view virtual override returns (string memory) {
         return uriPrefix;}}
